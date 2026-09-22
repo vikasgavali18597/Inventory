@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  min-width: 0;
 }
 
 /* Job Top Bar */
@@ -183,6 +184,10 @@
   grid-template-columns: 310px 1fr 320px;
   gap: 16px;
   align-items: start;
+}
+
+.job-workspace-grid > * {
+  min-width: 0;
 }
 
 @media (max-width: 1280px) {
