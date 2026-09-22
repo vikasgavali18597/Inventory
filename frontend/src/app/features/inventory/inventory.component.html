@@ -1,0 +1,331 @@
+<!-- Toast Notification -->
+<div class="toast-container" *ngIf="showToast">
+  <div class="toast toast-success">
+    <app-icon name="check-circle" [size]="18" color="#10b981"></app-icon>
+    <span>{{ toastMessage }}</span>
+  </div>
+</div>
+
+<div class="inventory-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">Operations / Inventory Management / Parts Master</div>
+      <h1 class="page-title font-display">Inventory & Spare Parts Master</h1>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="exportCSV()">
+        <app-icon name="printer" [size]="14"></app-icon>
+        <span>Export Stock (CSV)</span>
+      </button>
+      <a routerLink="/suppliers-grn" class="btn btn-secondary">
+        <app-icon name="truck" [size]="14"></app-icon>
+        <span>Stock In / PO Entry</span>
+      </a>
+      <button class="btn btn-primary" (click)="openAddPartModal()">
+        <app-icon name="plus" [size]="14" color="#ffffff"></app-icon>
+        <span>+ Add New Part / SKU</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI Metric Cards Grid -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-icon-box primary">
+        <app-icon name="inventory" [size]="20" color="#3b82f6"></app-icon>
+      </div>
+      <div class="kpi-details">
+        <div class="kpi-label">Total Inventory Valuation</div>
+        <div class="kpi-value font-mono">₹{{ totalValuation | number:'1.2-2' }}</div>
+        <div class="kpi-subtext positive">+6.2% vs last mo • {{ garageService.inventory().length }} SKUs</div>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon-box danger">
+        <app-icon name="alert" [size]="20" color="#ef4444"></app-icon>
+      </div>
+      <div class="kpi-details">
+        <div class="kpi-label">Low Stock & Critical</div>
+        <div class="kpi-value font-mono">{{ garageService.lowStockCount() }} Out of Stock</div>
+        <div class="kpi-subtext alert">Requires PO Immediate</div>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon-box success">
+        <app-icon name="wrench" [size]="20" color="#10b981"></app-icon>
+      </div>
+      <div class="kpi-details">
+        <div class="kpi-label">Parts Dispatched Today</div>
+        <div class="kpi-value font-mono">38 Units / ₹1,840</div>
+        <div class="kpi-subtext positive">Linked to active jobs</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Pills & Search Filter Bar -->
+  <div class="filter-controls-card apex-card">
+    <div class="category-pills">
+      <button class="pill-btn" [class.active]="selectedCategory === 'ALL'" (click)="selectedCategory = 'ALL'">
+        All Categories ({{ garageService.inventory().length }})
+      </button>
+      <button class="pill-btn" [class.active]="selectedCategory === 'Lubricants & Fluids'" (click)="selectedCategory = 'Lubricants & Fluids'">
+        Lubricants & Fluids
+      </button>
+      <button class="pill-btn" [class.active]="selectedCategory === 'Braking System'" (click)="selectedCategory = 'Braking System'">
+        Braking System
+      </button>
+      <button class="pill-btn" [class.active]="selectedCategory === 'Engine & Filters'" (click)="selectedCategory = 'Engine & Filters'">
+        Engine & Filters
+      </button>
+      <button class="pill-btn" [class.active]="selectedCategory === 'Batteries'" (click)="selectedCategory = 'Batteries'">
+        Batteries
+      </button>
+      <button class="pill-btn" [class.active]="selectedCategory === 'Ignition'" (click)="selectedCategory = 'Ignition'">
+        Ignition
+      </button>
+    </div>
+
+    <div class="search-filter-row">
+      <div class="search-box">
+        <app-icon name="search" [size]="15"></app-icon>
+        <input type="text" placeholder="Search SKU, Part Name, OEM #, Vehicle..." [(ngModel)]="searchQuery" />
+      </div>
+
+      <div class="filter-selects">
+        <select [(ngModel)]="selectedStockFilter">
+          <option value="ALL">All Stock Levels</option>
+          <option value="LOW">Low Stock & Critical</option>
+          <option value="HEALTHY">Healthy Reserve</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main 2-Column Grid: Parts Table & Quick Restock Drawer -->
+  <div class="inventory-grid">
+    <!-- Left: Parts Master Table -->
+    <div class="apex-card parts-table-card">
+      <div class="apex-table-wrapper">
+        <table class="apex-table">
+          <thead>
+            <tr>
+              <th>Part Details & SKU</th>
+              <th>Bin Location</th>
+              <th>Stock / Capacity</th>
+              <th>Cost / Sell Price</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let part of filteredParts">
+              <td>
+                <div class="part-details-cell">
+                  <div class="sku-row">
+                    <span class="sku-badge font-mono">#{{ part.sku }}</span>
+                    <span class="cat-badge">{{ part.category }}</span>
+                  </div>
+                  <strong class="part-title">{{ part.name }}</strong>
+                  <div class="compat-line">
+                    <span class="oem-tag font-mono">OEM {{ part.oemCode }}</span>
+                    <span class="compat-text">{{ part.compatibility }}</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="bin-cell">
+                  <span class="bin-code font-mono">{{ part.binLocation }}</span>
+                  <span class="weight-sub" *ngIf="part.weight">{{ part.weight }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="stock-progress-cell">
+                  <div class="stock-numbers">
+                    <span class="current-stock font-mono" [class.text-danger]="part.currentStock <= part.minStock">
+                      {{ part.currentStock }} {{ part.unit }}
+                    </span>
+                    <span class="min-max font-mono">Min: {{ part.minStock }} / Max: {{ part.maxStock }}</span>
+                  </div>
+                  <div class="progress-track">
+                    <div 
+                      class="progress-bar-fill" 
+                      [style.width.%]="(part.currentStock / part.maxStock) * 100"
+                      [ngClass]="part.currentStock <= part.minStock ? 'critical' : 'healthy'"
+                    ></div>
+                  </div>
+                  <div class="stock-status-badge">
+                    <span class="badge" [ngClass]="part.currentStock <= part.minStock ? 'badge-danger' : 'badge-success'">
+                      {{ part.currentStock <= part.minStock ? 'Low Stock Alert' : 'Healthy Reserve' }}
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="pricing-cell">
+                  <div class="retail-price font-mono">₹{{ part.unitPrice | number:'1.2-2' }}</div>
+                  <div class="cost-price font-mono">Cost: ₹{{ part.unitCost | number:'1.2-2' }}</div>
+                  <div class="margin-percent font-mono text-success">
+                    +{{ (((part.unitPrice - part.unitCost) / part.unitPrice) * 100) | number:'1.1-1' }}% Margin
+                  </div>
+                </div>
+              </td>
+              <td>
+                <button class="btn btn-sm btn-secondary" (click)="openRestock(part)">
+                  <app-icon name="plus" [size]="12"></app-icon>
+                  <span>Restock</span>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Right Column: Quick PO Drawer & Recent Activity -->
+    <div class="inventory-right-panel">
+      <!-- Quick PO Creator -->
+      <div class="apex-card quick-po-card">
+        <div class="card-header-compact">
+          <span class="card-tag">QUICK RESTOCK / PO</span>
+          <span class="badge badge-danger">Priority Restock</span>
+        </div>
+
+        <div class="po-part-select" *ngIf="targetRestockPart">
+          <div class="po-selected-box">
+            <strong>{{ targetRestockPart.name }}</strong>
+            <span class="font-mono">Current: {{ targetRestockPart.currentStock }} | Min: {{ targetRestockPart.minStock }}</span>
+          </div>
+          <div class="form-group">
+            <label>Restock Quantity ({{ targetRestockPart.unit }})</label>
+            <input type="number" min="1" [(ngModel)]="quickPoQty" />
+          </div>
+          <div class="po-summary-box font-mono">
+            <div>Supplier: <strong>{{ targetRestockPart.supplier }}</strong></div>
+            <div>Estimated PO Total: <strong>₹{{ (quickPoQty * targetRestockPart.unitCost) | number:'1.2-2' }}</strong></div>
+          </div>
+          <button class="btn btn-primary btn-block" (click)="submitRestock()">
+            <app-icon name="truck" [size]="14" color="#ffffff"></app-icon>
+            <span>Confirm Quick Restock</span>
+          </button>
+        </div>
+
+        <div class="no-part-selected" *ngIf="!targetRestockPart">
+          <p>Click <strong>Restock</strong> on any part to initiate a quick stock receipt.</p>
+        </div>
+      </div>
+
+      <!-- Live Shop Requisitions Stream (From Screenshot 4) -->
+      <div class="apex-card">
+        <div class="card-header-compact">
+          <span class="card-tag">LIVE SHOP REQUISITIONS</span>
+          <span class="badge badge-success">Real-time Stream</span>
+        </div>
+
+        <div class="requisition-feed">
+          <div class="req-item">
+            <div class="req-avatar">DT</div>
+            <div class="req-text">
+              <div class="req-title">Dan Thornton (Bay 3)</div>
+              <div class="req-desc">Checked out <strong>6.5L Motul 5W-40</strong> for #JC-8492</div>
+              <div class="req-time font-mono">2m ago • Barcode Scan</div>
+            </div>
+          </div>
+
+          <div class="req-item">
+            <div class="req-avatar">LW</div>
+            <div class="req-text">
+              <div class="req-title">Liam Walker (Bay 5)</div>
+              <div class="req-desc">Dispatched <strong>1x Mann HU7035Y Filter</strong> for #JC-8423</div>
+              <div class="req-time font-mono">18m ago • Express Dispense</div>
+            </div>
+          </div>
+
+          <div class="req-item">
+            <div class="req-avatar">SM</div>
+            <div class="req-text">
+              <div class="req-title">Sam Morales (Bay 1)</div>
+              <div class="req-desc">Approved requisition: <strong>Brembo 350mm Rotors</strong> for #JC-8492</div>
+              <div class="req-time font-mono">42m ago • Verified</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Add New Part / SKU -->
+<div class="modal-backdrop" *ngIf="showAddPartModal" (click)="showAddPartModal = false">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title font-display">+ Add New Inventory Part / SKU</h3>
+      <button class="btn-ghost" (click)="showAddPartModal = false">
+        <app-icon name="close" [size]="18"></app-icon>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label>Part SKU / Barcode *</label>
+          <input type="text" [(ngModel)]="newPart.sku" placeholder="BRK-XXX-100" class="font-mono" />
+        </div>
+        <div class="form-group">
+          <label>Category *</label>
+          <select [(ngModel)]="newPart.category">
+            <option value="Lubricants & Fluids">Lubricants & Fluids</option>
+            <option value="Braking System">Braking System</option>
+            <option value="Engine & Filters">Engine & Filters</option>
+            <option value="Batteries">Batteries</option>
+            <option value="Ignition">Ignition</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Part Name & Specification *</label>
+        <input type="text" [(ngModel)]="newPart.name" placeholder="e.g. Brembo Ceramic Performance Brake Pads" />
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label>Bin / Warehouse Location</label>
+          <input type="text" [(ngModel)]="newPart.binLocation" placeholder="Rack B-04 / Shelf 2" />
+        </div>
+        <div class="form-group">
+          <label>Supplier / Vendor</label>
+          <input type="text" [(ngModel)]="newPart.supplier" placeholder="Brembo S.p.A." />
+        </div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label>Initial Stock Qty</label>
+          <input type="number" min="0" [(ngModel)]="newPart.currentStock" />
+        </div>
+        <div class="form-group">
+          <label>Min Safety Stock</label>
+          <input type="number" min="1" [(ngModel)]="newPart.minStock" />
+        </div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label>Unit Cost (₹)</label>
+          <input type="number" step="0.5" [(ngModel)]="newPart.unitCost" />
+        </div>
+        <div class="form-group">
+          <label>Retail Selling Price (₹)</label>
+          <input type="number" step="0.5" [(ngModel)]="newPart.unitPrice" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Vehicle Compatibility / Notes</label>
+        <input type="text" [(ngModel)]="newPart.compatibility" placeholder="e.g. Audi A4/A5/A6, BMW 3-Series" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="showAddPartModal = false">Cancel</button>
+      <button class="btn btn-primary" [disabled]="!newPart.name.trim() || !newPart.sku.trim()" (click)="submitAddPart()">
+        Save Part to Catalog
+      </button>
+    </div>
+  </div>
+</div>

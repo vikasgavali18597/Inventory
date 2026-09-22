@@ -1,0 +1,99 @@
+<aside class="apex-sidebar">
+  <!-- Brand Logo & Station ID -->
+  <div class="sidebar-brand">
+    <div class="brand-icon">
+      <app-icon name="car" [size]="20" color="#3b82f6"></app-icon>
+    </div>
+    <div class="brand-text">
+      <div class="brand-title font-display">ApexAuto OS</div>
+      <div class="brand-subtitle">
+        <span class="station-id">WS-ID #849</span>
+        <span class="status-dot"></span>
+        <span class="status-online">ONLINE</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Links -->
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-section-title">OPERATIONS</div>
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+        <app-icon name="dashboard" [size]="17"></app-icon>
+        <span>Dashboard</span>
+      </a>
+      <a routerLink="/job-cards" routerLinkActive="active" class="nav-item">
+        <app-icon name="wrench" [size]="17"></app-icon>
+        <span>Vehicle Intake & Job Cards</span>
+        <span class="nav-badge" *ngIf="garageService.activeJobsCount() > 0">
+          {{ garageService.activeJobsCount() }}
+        </span>
+      </a>
+      <a routerLink="/bays" routerLinkActive="active" class="nav-item">
+        <app-icon name="clock" [size]="17"></app-icon>
+        <span>Live Bay Tracker</span>
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">MANAGEMENT</div>
+      <a routerLink="/inventory" routerLinkActive="active" class="nav-item">
+        <app-icon name="inventory" [size]="17"></app-icon>
+        <span>Inventory & Parts Master</span>
+        <span class="nav-badge alert" *ngIf="garageService.lowStockCount() > 0">
+          {{ garageService.lowStockCount() }}
+        </span>
+      </a>
+      <a routerLink="/suppliers-grn" routerLinkActive="active" class="nav-item">
+        <app-icon name="truck" [size]="17"></app-icon>
+        <span>Suppliers & Stock In</span>
+      </a>
+      <a routerLink="/billing" routerLinkActive="active" class="nav-item">
+        <app-icon name="billing" [size]="17"></app-icon>
+        <span>Income & Billing</span>
+      </a>
+      <a routerLink="/expenses" routerLinkActive="active" class="nav-item">
+        <app-icon name="expense" [size]="17"></app-icon>
+        <span>Expense Ledger</span>
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">ADMINISTRATION</div>
+      <a routerLink="/customer-history" routerLinkActive="active" class="nav-item">
+        <app-icon name="users" [size]="17"></app-icon>
+        <span>Customer History</span>
+      </a>
+      <a routerLink="/delivery" routerLinkActive="active" class="nav-item">
+        <app-icon name="delivery" [size]="17"></app-icon>
+        <span>Vehicle Delivery & Gatepass</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Workshop Pulse Footer (From Screenshot) -->
+  <div class="sidebar-footer">
+    <div class="pulse-card">
+      <div class="pulse-header">
+        <span class="pulse-title">WORKSHOP PULSE</span>
+        <span class="pulse-status-badge">Open</span>
+      </div>
+      <div class="pulse-metrics">
+        <div class="pulse-row">
+          <div class="pulse-label">
+            <app-icon name="wrench" [size]="13" color="#60a5fa"></app-icon>
+            <span>Active Bays</span>
+          </div>
+          <span class="pulse-val font-mono">{{ activeBays }} / {{ totalBays }}</span>
+        </div>
+        <div class="pulse-row" *ngIf="garageService.lowStockCount() > 0">
+          <div class="pulse-label">
+            <app-icon name="alert" [size]="13" color="#f59e0b"></app-icon>
+            <span>Stock Alert</span>
+          </div>
+          <span class="pulse-val alert font-mono">{{ garageService.lowStockCount() }} Low</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</aside>

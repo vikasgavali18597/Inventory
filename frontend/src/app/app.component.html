@@ -1,0 +1,19 @@
+<div class="apex-container">
+  <!-- Collapsible / Sticky Sidebar -->
+  <app-sidebar></app-sidebar>
+
+  <!-- Main Application Body Area -->
+  <div class="apex-main-content">
+    <app-header (openIntakeModal)="openIntakeModal()"></app-header>
+    
+    <main class="apex-page-body">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+
+  <!-- Global Vehicle Intake Modal -->
+  <app-vehicle-intake-modal 
+    *ngIf="showIntakeModal" 
+    (closeModal)="closeIntakeModal()"
+  ></app-vehicle-intake-modal>
+</div>

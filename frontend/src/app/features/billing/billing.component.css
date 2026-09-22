@@ -1,0 +1,420 @@
+.billing-page {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.title-with-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.billing-tabs-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tabs-group {
+  display: flex;
+  gap: 8px;
+}
+
+/* 2-Column Workflow Layout */
+.billing-workspace-grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (max-width: 1200px) {
+  .billing-workspace-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.invoices-table-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.table-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  flex: 1;
+  max-width: 420px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 6px 12px;
+}
+
+.search-box input {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--text-main);
+  width: 100%;
+}
+
+.filter-pills {
+  display: flex;
+  gap: 6px;
+}
+
+.active-row {
+  background-color: var(--bg-surface-elevated) !important;
+  border-left: 3px solid var(--primary);
+}
+
+.inv-id-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.inv-id {
+  font-size: 11px;
+  font-weight: 700;
+  color: #60a5fa;
+}
+
+.inv-job {
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.inv-time {
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.cust-veh-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.veh-text {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.plate-tag {
+  font-size: 9px;
+  color: var(--text-dim);
+  background-color: var(--bg-input);
+  width: fit-content;
+  padding: 1px 4px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border-subtle);
+}
+
+.totals-cell, .paid-bal-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 11px;
+}
+
+.gatepass-pill {
+  font-size: 9px;
+  color: #34d399;
+  background-color: var(--success-bg);
+  padding: 1px 4px;
+  border-radius: var(--radius-xs);
+  margin-top: 4px;
+  width: fit-content;
+}
+
+/* POS Terminal Styles */
+.pos-terminal-column {
+  position: sticky;
+  top: calc(var(--header-height) + 16px);
+}
+
+.pos-card {
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pos-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.terminal-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #34d399;
+}
+
+.pos-order-summary {
+  background-color: var(--bg-surface-elevated);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pos-summary-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pos-tag {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+}
+
+.inv-ref {
+  font-size: 11px;
+  color: #60a5fa;
+  font-weight: 600;
+}
+
+.pos-customer-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.pos-veh-info {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.balance-payable-box {
+  margin-top: 8px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(239, 68, 68, 0.15) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bal-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #fbbf24;
+}
+
+.bal-val {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fbbf24;
+}
+
+.section-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+
+.channels-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.channel-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.channel-btn:hover {
+  background-color: var(--bg-surface-hover);
+  color: var(--text-main);
+}
+
+.channel-btn.active {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
+}
+
+.payment-dynamic-display {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  background-color: var(--bg-surface-elevated);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.qr-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.qr-code-svg {
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.qr-status-text {
+  font-size: 10px;
+  color: #34d399;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pos-input-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gatepass-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-main);
+  cursor: pointer;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.payment-share-box {
+  background-color: var(--bg-surface-elevated);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 10px;
+}
+
+.share-header {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-dim);
+}
+
+.share-progress-bar {
+  width: 100%;
+  height: 6px;
+  border-radius: var(--radius-full);
+  display: flex;
+  overflow: hidden;
+  background-color: var(--bg-input);
+}
+
+.share-seg.upi { background-color: var(--primary); }
+.share-seg.card { background-color: var(--accent-cyan); }
+.share-seg.cash { background-color: var(--success); }
+
+.share-legend {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-muted);
+}
+
+/* Gatepass Ticket Dialog */
+.gatepass-dialog {
+  max-width: 480px;
+}
+
+.gatepass-header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gatepass-ticket {
+  background-color: var(--bg-surface-elevated);
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 12px;
+}
+
+.ticket-header {
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 8px;
+  color: #60a5fa;
+}
+
+.ticket-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.plate-highlight {
+  font-size: 14px;
+  color: #fbbf24;
+}
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}

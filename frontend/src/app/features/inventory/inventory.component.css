@@ -1,0 +1,343 @@
+.inventory-page {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.breadcrumb {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Category Pills & Search Controls */
+.filter-controls-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.category-pills {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.pill-btn {
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.pill-btn.active {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: #ffffff;
+}
+
+.search-filter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  flex: 1;
+  max-width: 450px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 6px 12px;
+}
+
+.search-box input {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--text-main);
+  width: 100%;
+}
+
+.filter-selects select {
+  padding: 6px 12px;
+}
+
+/* Inventory 2-Column Grid */
+.inventory-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .inventory-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.parts-table-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.part-details-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.sku-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sku-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: #60a5fa;
+  background-color: var(--primary-light);
+  padding: 1px 5px;
+  border-radius: var(--radius-xs);
+}
+
+.cat-badge {
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.part-title {
+  font-size: 13px;
+  color: var(--text-main);
+}
+
+.compat-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.oem-tag {
+  color: var(--text-dim);
+  font-size: 10px;
+}
+
+.compat-text {
+  color: var(--text-muted);
+}
+
+.bin-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.bin-code {
+  font-size: 12px;
+  font-weight: 600;
+  color: #34d399;
+}
+
+.weight-sub {
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.stock-progress-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 140px;
+}
+
+.stock-numbers {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+
+.current-stock {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.min-max {
+  color: var(--text-dim);
+  font-size: 10px;
+}
+
+.progress-track {
+  width: 100%;
+  height: 6px;
+  background-color: var(--bg-input);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+}
+
+.progress-bar-fill.healthy {
+  background-color: var(--success);
+}
+
+.progress-bar-fill.critical {
+  background-color: var(--danger);
+}
+
+.pricing-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.retail-price {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.cost-price {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.margin-percent {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* Right Panel */
+.inventory-right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.po-selected-box {
+  background-color: var(--bg-surface-elevated);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+  font-size: 12px;
+}
+
+.po-summary-box {
+  background-color: var(--bg-surface-elevated);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  margin: 12px 0;
+}
+
+.no-part-selected {
+  padding: 20px 10px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.requisition-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.req-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.req-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.req-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: var(--primary-light);
+  color: #60a5fa;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.req-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.req-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.req-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.req-time {
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}

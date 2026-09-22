@@ -1,0 +1,59 @@
+<header class="apex-header">
+  <!-- Search Bar -->
+  <div class="header-search">
+    <div class="search-box">
+      <app-icon name="search" [size]="15" color="#64748b"></app-icon>
+      <input 
+        type="text" 
+        placeholder="Search by Job Card #, Plate, Customer..." 
+        [(ngModel)]="searchQuery" 
+        (keyup.enter)="onSearch()"
+      />
+      <kbd class="shortcut-kbd">⌘K</kbd>
+    </div>
+  </div>
+
+  <!-- Header Right Controls -->
+  <div class="header-actions">
+    <!-- Live Sync Status -->
+    <div class="status-chip">
+      <span class="pulse-dot"></span>
+      <span class="chip-label">Sync:</span>
+      <span class="chip-val">Live</span>
+    </div>
+
+    <!-- Date Chip -->
+    <div class="date-chip">
+      <app-icon name="clock" [size]="14" color="#94a3b8"></app-icon>
+      <span>Today: {{ todayDate }}</span>
+    </div>
+
+    <!-- Primary Action: + New Vehicle Intake -->
+    <button class="btn btn-primary" (click)="openIntakeModal.emit()">
+      <app-icon name="plus" [size]="15" color="#ffffff"></app-icon>
+      <span>New Vehicle Intake</span>
+    </button>
+
+    <!-- Theme Switcher -->
+    <button class="icon-button" (click)="toggleTheme()" [title]="isDarkMode ? 'Switch to Light Theme' : 'Switch to Dark Theme'">
+      <app-icon [name]="isDarkMode ? 'refresh' : 'refresh'" [size]="16" color="#94a3b8"></app-icon>
+    </button>
+
+    <!-- Notification Bell -->
+    <div class="notification-wrapper">
+      <button class="icon-button">
+        <app-icon name="alert" [size]="17" color="#94a3b8"></app-icon>
+      </button>
+      <span class="badge-count">4</span>
+    </div>
+
+    <!-- User Profile (David Reynolds) -->
+    <div class="user-profile">
+      <img src="assets/images/david-reynolds.jpg" alt="David Reynolds" class="user-avatar" />
+      <div class="user-info">
+        <div class="user-name">David Reynolds</div>
+        <div class="user-role">Service Advisor / Lead</div>
+      </div>
+    </div>
+  </div>
+</header>

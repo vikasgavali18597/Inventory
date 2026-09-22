@@ -1,0 +1,446 @@
+<!-- Toast Notification -->
+<div class="toast-container" *ngIf="showToast">
+  <div class="toast toast-success">
+    <app-icon name="check-circle" [size]="18" color="#10b981"></app-icon>
+    <span>{{ toastMessage }}</span>
+  </div>
+</div>
+
+<div class="billing-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">Operations / Financial Accounting / Invoicing & Ledger</div>
+      <div class="title-with-badge">
+        <h1 class="page-title font-display">Billing, Invoicing & Cashflow Management</h1>
+        <span class="badge badge-success">Books Balanced</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="showExpenseModal = true">
+        <app-icon name="expense" [size]="14"></app-icon>
+        <span>+ Record Operating Expense</span>
+      </button>
+      <a routerLink="/job-cards" class="btn btn-primary">
+        <app-icon name="plus" [size]="14" color="#ffffff"></app-icon>
+        <span>+ Create Customer Invoice</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- KPI Cards Grid -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-icon-box primary">
+        <app-icon name="billing" [size]="20" color="#3b82f6"></app-icon>
+      </div>
+      <div class="kpi-details">
+        <div class="kpi-label">Gross Invoiced Today</div>
+        <div class="kpi-value font-mono">₹{{ garageService.grossInvoicedToday() | number:'1.2-2' }}</div>
+        <div class="kpi-subtext positive">+18.4% vs last Friday</div>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon-box warning">
+        <app-icon name="clock" [size]="20" color="#f59e0b"></app-icon>
+      </div>
+      <div class="kpi-details">
+        <div class="kpi-label">Pending Receivables</div>
+        <div class="kpi-value font-mono">₹{{ garageService.pendingReceivables() | number:'1.2-2' }}</div>
+        <div class="kpi-subtext alert">Awaiting Settlement</div>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon-box danger">
+        <app-icon name="expense" [size]="20" color="#ef4444"></app-icon>
+      </div>
+      <div class="kpi-details">
+        <div class="kpi-label">Today's Expenses</div>
+        <div class="kpi-value font-mono">₹{{ garageService.todayExpensesTotal() | number:'1.2-2' }}</div>
+        <div class="kpi-subtext">Operating Vouchers</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="billing-tabs-row">
+    <div class="tabs-group">
+      <button class="pill-btn" [class.active]="activeTab === 'invoices'" (click)="activeTab = 'invoices'">
+        Customer Invoices ({{ garageService.invoices().length }})
+      </button>
+      <button class="pill-btn" [class.active]="activeTab === 'expenses'" (click)="activeTab = 'expenses'">
+        Expense Ledger ({{ garageService.expenses().length }})
+      </button>
+    </div>
+  </div>
+
+  <!-- Main 2-Column Workflow Layout (Matching Screenshot 5) -->
+  <div class="billing-workspace-grid">
+    <!-- LEFT COLUMN: Customer Invoices Table & Search -->
+    <div class="invoices-table-column">
+      <!-- Search & Filters -->
+      <div class="table-filter-bar">
+        <div class="search-box">
+          <app-icon name="search" [size]="15"></app-icon>
+          <input type="text" placeholder="Filter by Invoice #, Job Card, Plate, Customer..." [(ngModel)]="searchQuery" />
+        </div>
+
+        <div class="filter-pills">
+          <button class="pill-btn" [class.active]="statusFilter === 'ALL'" (click)="statusFilter = 'ALL'">All</button>
+          <button class="pill-btn" [class.active]="statusFilter === 'DUE'" (click)="statusFilter = 'DUE'">Due / Partial</button>
+          <button class="pill-btn" [class.active]="statusFilter === 'PAID'" (click)="statusFilter = 'PAID'">Paid</button>
+        </div>
+      </div>
+
+      <!-- Invoices Data Table -->
+      <div class="apex-table-wrapper">
+        <table class="apex-table">
+          <thead>
+            <tr>
+              <th>Invoice & Job</th>
+              <th>Customer & Vehicle</th>
+              <th>Grand Total</th>
+              <th>Paid / Balance</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr 
+              *ngFor="let inv of filteredInvoices" 
+              [class.active-row]="selectedInvoice?.id === inv.id"
+              (click)="selectInvoice(inv)"
+            >
+              <td>
+                <div class="inv-id-cell">
+                  <span class="inv-id font-mono">#{{ inv.id }}</span>
+                  <span class="inv-job font-mono">Job: #{{ inv.jobCardId }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="cust-veh-cell">
+                  <strong>{{ inv.customerName }}</strong>
+                  <span class="veh-text">{{ inv.vehicleDesc }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="totals-cell font-mono">
+                  <strong>₹{{ inv.grandTotal | number:'1.2-2' }}</strong>
+                </div>
+              </td>
+              <td>
+                <div class="paid-bal-cell font-mono">
+                  <div class="text-success">Paid: ₹{{ inv.paidAmount | number:'1.2-2' }}</div>
+                  <div [class.text-danger]="inv.balanceDue > 0">
+                    <strong>Due: ₹{{ inv.balanceDue | number:'1.2-2' }}</strong>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="inv.status === 'Paid in Full' ? 'badge-success' : (inv.status === 'Partial / Due' ? 'badge-warning' : 'badge-neutral')">
+                  {{ inv.status }}
+                </span>
+                <div *ngIf="inv.gatepassIssued" class="gatepass-pill font-mono">Gatepass #01</div>
+              </td>
+              <td>
+                <button 
+                  class="btn btn-sm" 
+                  [ngClass]="inv.balanceDue > 0 ? 'btn-primary' : 'btn-secondary'"
+                  (click)="selectInvoice(inv); $event.stopPropagation()"
+                >
+                  {{ inv.balanceDue > 0 ? 'Collect' : 'View' }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Today's Operating Expenses Table (If Tab Active) -->
+      <div class="apex-card expenses-ledger-card" *ngIf="activeTab === 'expenses'">
+        <div class="apex-card-header">
+          <div class="apex-card-title">Today's Operating Vouchers</div>
+          <button class="btn btn-sm btn-primary" (click)="showExpenseModal = true">+ New Expense</button>
+        </div>
+        <div class="apex-table-wrapper">
+          <table class="apex-table">
+            <thead>
+              <tr>
+                <th>Voucher / Title</th>
+                <th>Category</th>
+                <th>Vendor / Recipient</th>
+                <th>Payment Mode</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let exp of garageService.expenses()">
+                <td><strong>{{ exp.title }}</strong><div class="sub">{{ exp.date }}</div></td>
+                <td>{{ exp.category }}</td>
+                <td>{{ exp.vendorOrRecipient }}</td>
+                <td><span class="font-mono">{{ exp.paymentMethod }}</span></td>
+                <td class="font-mono text-danger">-₹{{ exp.amount | number:'1.2-2' }}</td>
+                <td><span class="badge badge-success">{{ exp.status }}</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: POS Settlement Terminal (Matching Screenshot 5) -->
+    <div class="pos-terminal-column" *ngIf="selectedInvoice">
+      <div class="apex-card pos-card">
+        <!-- Terminal Header -->
+        <div class="pos-header">
+          <div class="terminal-badge font-mono">
+            <span class="status-dot"></span>
+            <span>POS Settlement Terminal • Counter 01 Ready</span>
+          </div>
+        </div>
+
+        <!-- Order Settlement Summary -->
+        <div class="pos-order-summary">
+          <div class="pos-summary-top">
+            <span class="pos-tag">ACTIVE ORDER SETTLEMENT</span>
+            <span class="font-mono inv-ref">#{{ selectedInvoice.id }}</span>
+          </div>
+          <h3 class="pos-customer-name">{{ selectedInvoice.customerName }}</h3>
+          <div class="pos-veh-info">{{ selectedInvoice.vehicleDesc }} ({{ selectedInvoice.vehiclePlate }})</div>
+
+          <!-- Dynamic Balance Payable Box -->
+          <div class="balance-payable-box">
+            <span class="bal-label">BALANCE PAYABLE</span>
+            <span class="bal-val font-mono">₹{{ selectedInvoice.balanceDue | number:'1.2-2' }}</span>
+          </div>
+        </div>
+
+        <!-- Select Collection Channel -->
+        <div class="payment-channels-section">
+          <div class="section-label">SELECT COLLECTION CHANNEL</div>
+          <div class="channels-grid">
+            <button 
+              class="channel-btn" 
+              [class.active]="selectedPaymentChannel === 'UPI / QR'"
+              (click)="selectedPaymentChannel = 'UPI / QR'"
+            >
+              <app-icon name="qr-code" [size]="16"></app-icon>
+              <span>UPI / QR Scan</span>
+            </button>
+
+            <button 
+              class="channel-btn" 
+              [class.active]="selectedPaymentChannel === 'POS Card'"
+              (click)="selectedPaymentChannel = 'POS Card'"
+            >
+              <app-icon name="credit-card" [size]="16"></app-icon>
+              <span>POS Card Terminal</span>
+            </button>
+
+            <button 
+              class="channel-btn" 
+              [class.active]="selectedPaymentChannel === 'Cash'"
+              (click)="selectedPaymentChannel = 'Cash'"
+            >
+              <app-icon name="billing" [size]="16"></app-icon>
+              <span>Cash Drawer</span>
+            </button>
+
+            <button 
+              class="channel-btn" 
+              [class.active]="selectedPaymentChannel === 'Bank NEFT'"
+              (click)="selectedPaymentChannel = 'Bank NEFT'"
+            >
+              <app-icon name="expense" [size]="16"></app-icon>
+              <span>Bank NEFT / Wire</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Dynamic Payment Display Area (QR Code View) -->
+        <div class="payment-dynamic-display" *ngIf="selectedPaymentChannel === 'UPI / QR'">
+          <div class="qr-container">
+            <svg class="qr-code-svg" viewBox="0 0 160 160" width="130" height="130">
+              <rect width="160" height="160" fill="#ffffff" rx="8" />
+              <!-- Top Left Marker -->
+              <rect x="15" y="15" width="40" height="40" fill="#0b0f17" />
+              <rect x="23" y="23" width="24" height="24" fill="#ffffff" />
+              <rect x="29" y="29" width="12" height="12" fill="#0b0f17" />
+              <!-- Top Right Marker -->
+              <rect x="105" y="15" width="40" height="40" fill="#0b0f17" />
+              <rect x="113" y="23" width="24" height="24" fill="#ffffff" />
+              <rect x="119" y="29" width="12" height="12" fill="#0b0f17" />
+              <!-- Bottom Left Marker -->
+              <rect x="15" y="105" width="40" height="40" fill="#0b0f17" />
+              <rect x="23" y="113" width="24" height="24" fill="#ffffff" />
+              <rect x="29" y="119" width="12" height="12" fill="#0b0f17" />
+              <!-- QR Patterns -->
+              <rect x="65" y="20" width="10" height="20" fill="#0b0f17" />
+              <rect x="85" y="15" width="10" height="10" fill="#0b0f17" />
+              <rect x="65" y="55" width="30" height="10" fill="#0b0f17" />
+              <rect x="25" y="65" width="20" height="20" fill="#0b0f17" />
+              <rect x="55" y="75" width="10" height="30" fill="#0b0f17" />
+              <rect x="75" y="75" width="20" height="10" fill="#0b0f17" />
+              <rect x="105" y="65" width="20" height="10" fill="#0b0f17" />
+              <rect x="130" y="75" width="15" height="20" fill="#0b0f17" />
+              <rect x="70" y="110" width="30" height="10" fill="#0b0f17" />
+              <rect x="110" y="105" width="20" height="20" fill="#0b0f17" />
+              <rect x="100" y="135" width="45" height="10" fill="#0b0f17" />
+              <!-- Center Apex Logo Overlay -->
+              <rect x="65" y="65" width="30" height="30" fill="#2563eb" rx="4" />
+              <circle cx="80" cy="80" r="8" fill="#ffffff" />
+            </svg>
+            <div class="qr-status-text font-mono">
+              <span class="status-dot"></span>
+              <span>Dynamic Amount Locked: ₹{{ selectedInvoice.balanceDue | number:'1.2-2' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Custom Payment Amount & Reference -->
+        <div class="pos-input-fields">
+          <div class="form-group">
+            <label>Amount to Collect (₹)</label>
+            <input type="number" [(ngModel)]="customPayAmount" />
+          </div>
+
+          <div class="form-group">
+            <label>Transaction / UTR Reference</label>
+            <input type="text" [(ngModel)]="transactionRef" class="font-mono" />
+          </div>
+
+          <div class="gatepass-checkbox">
+            <input type="checkbox" id="gp" [(ngModel)]="autoIssueGatepass" />
+            <label for="gp">Auto-Issue Security Gatepass (Gate #01)</label>
+          </div>
+        </div>
+
+        <!-- Settlement Submit Button -->
+        <div class="pos-action-wrap">
+          <button 
+            class="btn btn-success btn-lg btn-block"
+            [disabled]="selectedInvoice.balanceDue <= 0 && customPayAmount <= 0"
+            (click)="confirmSettlement()"
+          >
+            <app-icon name="check-circle" [size]="18" color="#ffffff"></app-icon>
+            <span>Confirm Settlement & Release Gatepass</span>
+          </button>
+        </div>
+
+        <!-- Payment Mode Share Breakdown (From Screenshot 5) -->
+        <div class="payment-share-box">
+          <div class="share-header">
+            <span class="font-mono">PAYMENT MODE SHARE</span>
+            <span class="font-mono text-success">100% Real-time</span>
+          </div>
+          <div class="share-progress-bar">
+            <div class="share-seg upi" style="width: 55%"></div>
+            <div class="share-seg card" style="width: 28%"></div>
+            <div class="share-seg cash" style="width: 17%"></div>
+          </div>
+          <div class="share-legend font-mono">
+            <span>UPI (55%): ₹2,840</span>
+            <span>Card (28%): ₹1,420</span>
+            <span>Cash (17%): ₹860</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Security Gatepass Release -->
+<div class="modal-backdrop" *ngIf="showGatepassModal" (click)="showGatepassModal = false">
+  <div class="modal-dialog gatepass-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="gatepass-header-title">
+        <app-icon name="check-circle" [size]="22" color="#10b981"></app-icon>
+        <h3 class="modal-title font-display">Security Gatepass Released (Gate #01)</h3>
+      </div>
+      <button class="btn-ghost" (click)="showGatepassModal = false">
+        <app-icon name="close" [size]="18"></app-icon>
+      </button>
+    </div>
+    <div class="modal-body" *ngIf="selectedInvoice">
+      <div class="gatepass-ticket font-mono">
+        <div class="ticket-header">
+          <strong>APEXAUTO OS — SECURITY CLEARANCE</strong>
+          <div>GATEPASS-{{ selectedInvoice.id }}</div>
+        </div>
+        <div class="ticket-body">
+          <div>Customer: <strong>{{ selectedInvoice.customerName }}</strong></div>
+          <div>Vehicle: <strong>{{ selectedInvoice.vehicleDesc }}</strong></div>
+          <div>Plate: <strong class="plate-highlight">{{ selectedInvoice.vehiclePlate }}</strong></div>
+          <div>Payment Status: <strong class="text-success">SETTLED IN FULL</strong></div>
+          <div>Authorized By: <strong>David Reynolds (Service Advisor)</strong></div>
+          <div>Timestamp: <strong>Today • {{ selectedInvoice.issuedAt }}</strong></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="showGatepassModal = false">Close</button>
+      <button class="btn btn-primary" (click)="printInvoice(selectedInvoice!)">
+        <app-icon name="printer" [size]="14" color="#ffffff"></app-icon>
+        <span>Print Gatepass & Invoice</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Record Operating Expense -->
+<div class="modal-backdrop" *ngIf="showExpenseModal" (click)="showExpenseModal = false">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title font-display">+ Record Operating Expense Voucher</h3>
+      <button class="btn-ghost" (click)="showExpenseModal = false">
+        <app-icon name="close" [size]="18"></app-icon>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Expense Title / Description *</label>
+        <input type="text" [(ngModel)]="newExpTitle" placeholder="e.g. Workshop Compressor Oil & Service" />
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label>Category *</label>
+          <select [(ngModel)]="newExpCategory">
+            <option value="Supplies & Parts">Supplies & Parts</option>
+            <option value="Equipment & Maintenance">Equipment & Maintenance</option>
+            <option value="Technician Meals / Overtime">Technician Meals / Overtime</option>
+            <option value="Utilities / Gases">Utilities / Gases</option>
+            <option value="Facility">Facility</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Amount (₹) *</label>
+          <input type="number" [(ngModel)]="newExpAmount" />
+        </div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label>Vendor or Recipient</label>
+          <input type="text" [(ngModel)]="newExpRecipient" placeholder="e.g. Atlas Copco" />
+        </div>
+        <div class="form-group">
+          <label>Payment Method</label>
+          <select [(ngModel)]="newExpMethod">
+            <option value="UPI">UPI</option>
+            <option value="Card">Card</option>
+            <option value="Cash">Cash</option>
+            <option value="NEFT">NEFT / Bank</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="showExpenseModal = false">Cancel</button>
+      <button class="btn btn-primary" [disabled]="!newExpTitle.trim()" (click)="submitExpense()">
+        Record Expense
+      </button>
+    </div>
+  </div>
+</div>

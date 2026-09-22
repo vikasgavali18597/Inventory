@@ -1,0 +1,702 @@
+<!-- Toast Notification -->
+<div class="toast-container" *ngIf="showToast">
+  <div class="toast toast-success">
+    <app-icon name="check-circle" [size]="18" color="#10b981"></app-icon>
+    <span>{{ toastMessage }}</span>
+  </div>
+</div>
+
+<!-- ============================================== -->
+<!-- VIEW A: DETAILED JOB CARD VIEW (Screenshot 1)  -->
+<!-- ============================================== -->
+<div class="job-detail-container" *ngIf="activeJob">
+  <!-- Top Breadcrumbs & Action Bar -->
+  <div class="job-top-bar">
+    <div class="job-title-cluster">
+      <div class="breadcrumb">
+        <a routerLink="/job-cards">Vehicle Intake & Job Cards</a> / 
+        <span class="font-mono">#{{ activeJob.id }}</span>
+      </div>
+      <div class="job-title-row">
+        <h1 class="job-main-title font-display">
+          Job Card #{{ activeJob.id }} — {{ activeJob.vehicle.year }} {{ activeJob.vehicle.make }} {{ activeJob.vehicle.model }}
+        </h1>
+        <div class="job-badges">
+          <span class="badge badge-neutral font-mono">{{ activeJob.vehicle.regPlate }}</span>
+          <span class="badge badge-warning font-mono">{{ activeJob.status | uppercase }} ({{ activeJob.progressPercent }}%)</span>
+          <span class="badge badge-danger" *ngIf="activeJob.priority === 'High'">
+            <app-icon name="alert" [size]="12" color="#ef4444"></app-icon>
+            <span>High Priority</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="job-action-buttons">
+      <button class="btn btn-secondary btn-sm" (click)="printJobCard()">
+        <app-icon name="printer" [size]="14"></app-icon>
+        <span>Print</span>
+      </button>
+      <button class="btn btn-secondary btn-sm" (click)="sendEstimateSMS()">
+        <app-icon name="users" [size]="14" color="#10b981"></app-icon>
+        <span>Send Estimate (SMS/WA)</span>
+      </button>
+      <button class="btn btn-secondary btn-sm" (click)="openAddLabor()">
+        <app-icon name="plus" [size]="14"></app-icon>
+        <span>Add Labor Item</span>
+      </button>
+      <button class="btn btn-primary btn-sm" (click)="generateInvoice()">
+        <app-icon name="billing" [size]="14" color="#ffffff"></app-icon>
+        <span>Generate Invoice</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 8-Stage Vehicle Lifecycle Pipeline Stepper -->
+  <div class="pipeline-card">
+    <div class="pipeline-header">
+      <span class="pipeline-title font-mono">VEHICLE LIFECYCLE PIPELINE</span>
+      <span class="pipeline-status">Step {{ activeJob.pipelineStep }} of 8 — Handover: {{ activeJob.targetHandover }}</span>
+    </div>
+
+    <div class="pipeline-stepper">
+      <!-- Step 1: Intake -->
+      <div class="step-node" [class.completed]="activeJob.pipelineStep > 1" [class.active]="activeJob.pipelineStep === 1" (click)="setPipelineStep(1)">
+        <div class="step-circle">
+          <app-icon name="check" [size]="12" *ngIf="activeJob.pipelineStep > 1"></app-icon>
+          <span *ngIf="activeJob.pipelineStep <= 1">1</span>
+        </div>
+        <div class="step-meta">
+          <span class="step-name">1. Intake</span>
+          <span class="step-sub">Completed</span>
+        </div>
+      </div>
+
+      <div class="step-line" [class.active]="activeJob.pipelineStep > 1"></div>
+
+      <!-- Step 2: Inspection -->
+      <div class="step-node" [class.completed]="activeJob.pipelineStep > 2" [class.active]="activeJob.pipelineStep === 2" (click)="setPipelineStep(2)">
+        <div class="step-circle">
+          <app-icon name="check" [size]="12" *ngIf="activeJob.pipelineStep > 2"></app-icon>
+          <span *ngIf="activeJob.pipelineStep <= 2">2</span>
+        </div>
+        <div class="step-meta">
+          <span class="step-name">2. Inspection</span>
+          <span class="step-sub">32-pt Check</span>
+        </div>
+      </div>
+
+      <div class="step-line" [class.active]="activeJob.pipelineStep > 2"></div>
+
+      <!-- Step 3: Estimate -->
+      <div class="step-node" [class.completed]="activeJob.pipelineStep > 3" [class.active]="activeJob.pipelineStep === 3" (click)="setPipelineStep(3)">
+        <div class="step-circle">
+          <app-icon name="check" [size]="12" *ngIf="activeJob.pipelineStep > 3"></app-icon>
+          <span *ngIf="activeJob.pipelineStep <= 3">3</span>
+        </div>
+        <div class="step-meta">
+          <span class="step-name">3. Estimate</span>
+          <span class="step-sub">Client Approved</span>
+        </div>
+      </div>
+
+      <div class="step-line" [class.active]="activeJob.pipelineStep > 3"></div>
+
+      <!-- Step 4: In Progress -->
+      <div class="step-node" [class.completed]="activeJob.pipelineStep > 4" [class.active]="activeJob.pipelineStep === 4" (click)="setPipelineStep(4)">
+        <div class="step-circle">
+          <app-icon name="check" [size]="12" *ngIf="activeJob.pipelineStep > 4"></app-icon>
+          <span *ngIf="activeJob.pipelineStep <= 4">4</span>
+        </div>
+        <div class="step-meta">
+          <span class="step-name">4. In Progress</span>
+          <span class="step-sub">Bay 3 • Active</span>
+        </div>
+      </div>
+
+      <div class="step-line" [class.active]="activeJob.pipelineStep > 4"></div>
+
+      <!-- Step 5: QC & Testing -->
+      <div class="step-node" [class.completed]="activeJob.pipelineStep > 5" [class.active]="activeJob.pipelineStep === 5" (click)="setPipelineStep(5)">
+        <div class="step-circle">
+          <app-icon name="check" [size]="12" *ngIf="activeJob.pipelineStep > 5"></app-icon>
+          <span *ngIf="activeJob.pipelineStep <= 5">5</span>
+        </div>
+        <div class="step-meta">
+          <span class="step-name">5. QC & Testing</span>
+          <span class="step-sub">Road Test</span>
+        </div>
+      </div>
+
+      <div class="step-line" [class.active]="activeJob.pipelineStep > 5"></div>
+
+      <!-- Step 6: Final Billing -->
+      <div class="step-node" [class.completed]="activeJob.pipelineStep > 6" [class.active]="activeJob.pipelineStep === 6" (click)="setPipelineStep(6)">
+        <div class="step-circle">
+          <app-icon name="check" [size]="12" *ngIf="activeJob.pipelineStep > 6"></app-icon>
+          <span *ngIf="activeJob.pipelineStep <= 6">6</span>
+        </div>
+        <div class="step-meta">
+          <span class="step-name">6. Final Billing</span>
+          <span class="step-sub">Invoice Ready</span>
+        </div>
+      </div>
+
+      <div class="step-line" [class.active]="activeJob.pipelineStep > 6"></div>
+
+      <!-- Step 7: Ready for Pickup -->
+      <div class="step-node" [class.completed]="activeJob.pipelineStep > 7" [class.active]="activeJob.pipelineStep === 7" (click)="setPipelineStep(7)">
+        <div class="step-circle">
+          <app-icon name="check" [size]="12" *ngIf="activeJob.pipelineStep > 7"></app-icon>
+          <span *ngIf="activeJob.pipelineStep <= 7">7</span>
+        </div>
+        <div class="step-meta">
+          <span class="step-name">7. Ready Pickup</span>
+          <span class="step-sub">Locker/Bay</span>
+        </div>
+      </div>
+
+      <div class="step-line" [class.active]="activeJob.pipelineStep > 7"></div>
+
+      <!-- Step 8: Delivered -->
+      <div class="step-node" [class.completed]="activeJob.pipelineStep === 8" [class.active]="activeJob.pipelineStep === 8" (click)="setPipelineStep(8)">
+        <div class="step-circle">
+          <app-icon name="check" [size]="12" *ngIf="activeJob.pipelineStep === 8"></app-icon>
+          <span *ngIf="activeJob.pipelineStep < 8">8</span>
+        </div>
+        <div class="step-meta">
+          <span class="step-name">8. Delivered</span>
+          <span class="step-sub">Gatepass Out</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3-Column Primary Operational Grid -->
+  <div class="job-workspace-grid">
+    <!-- LEFT COLUMN: Customer, Vehicle Specs & Complaints -->
+    <div class="col-left">
+      <!-- Customer Profile Card -->
+      <div class="apex-card">
+        <div class="card-header-compact">
+          <span class="card-tag">CUSTOMER PROFILE</span>
+          <span class="badge badge-purple" *ngIf="activeJob.customer.vipTier">{{ activeJob.customer.vipTier }}</span>
+        </div>
+        <div class="customer-profile-block">
+          <div class="cust-avatar-large">RS</div>
+          <div class="cust-details-text">
+            <h3 class="cust-name-lg">{{ activeJob.customer.name }}</h3>
+            <div class="cust-meta-line">{{ activeJob.customer.priorVisits }} Prior Visits • {{ activeJob.customer.paymentRecordRating }}</div>
+          </div>
+        </div>
+        <div class="profile-rows">
+          <div class="profile-row">
+            <span class="row-label">Phone</span>
+            <span class="row-val font-mono">{{ activeJob.customer.phone }}</span>
+          </div>
+          <div class="profile-row">
+            <span class="row-label">Email</span>
+            <span class="row-val">{{ activeJob.customer.email }}</span>
+          </div>
+          <div class="profile-row">
+            <span class="row-label">Pref Channel</span>
+            <span class="row-val text-success">{{ activeJob.customer.preferredChannel }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vehicle Specs & Image Card -->
+      <div class="apex-card">
+        <div class="card-header-compact">
+          <span class="card-tag">INTAKE SPECS & TELEMETRY</span>
+          <span class="badge badge-primary font-mono">{{ activeJob.vehicle.bayNumber || 'Bay #3' }}</span>
+        </div>
+        <div class="car-photo-wrap" *ngIf="activeJob.vehicle.imageUrl">
+          <img [src]="activeJob.vehicle.imageUrl" alt="Vehicle Photo" class="car-photo" />
+          <div class="car-photo-badge font-display">{{ activeJob.vehicle.year }} {{ activeJob.vehicle.make }} {{ activeJob.vehicle.model }}</div>
+        </div>
+        <div class="profile-rows">
+          <div class="profile-row">
+            <span class="row-label">VIN Number</span>
+            <span class="row-val font-mono">{{ activeJob.vehicle.vin }}</span>
+          </div>
+          <div class="profile-row">
+            <span class="row-label">Odometer In</span>
+            <span class="row-val font-mono">{{ activeJob.vehicle.odometer | number }} km</span>
+          </div>
+          <div class="profile-row">
+            <span class="row-label">Arrival Time</span>
+            <span class="row-val">{{ activeJob.createdAt }}</span>
+          </div>
+          <div class="profile-row">
+            <span class="row-label">Target Handover</span>
+            <span class="row-val text-warning">{{ activeJob.targetHandover }}</span>
+          </div>
+        </div>
+
+        <!-- Fuel Gauge Meter -->
+        <div class="fuel-gauge-box">
+          <div class="fuel-header">
+            <span class="fuel-label">Intake Fuel Level</span>
+            <span class="fuel-val font-mono">{{ activeJob.vehicle.fuelLevel }}% (Half Tank)</span>
+          </div>
+          <div class="fuel-meter-bar">
+            <div class="fuel-fill" [style.width.%]="activeJob.vehicle.fuelLevel"></div>
+          </div>
+          <div class="fuel-notches font-mono">
+            <span>E</span>
+            <span>1/4</span>
+            <span class="text-success">1/2</span>
+            <span>3/4</span>
+            <span>F</span>
+          </div>
+        </div>
+
+        <!-- Assigned Lead Technician -->
+        <div class="tech-assignment-box">
+          <div class="tech-avatar-circle">
+            <app-icon name="wrench" [size]="15" color="#60a5fa"></app-icon>
+          </div>
+          <div class="tech-info">
+            <div class="tech-title-lbl">ASSIGNED LEAD TECHNICIAN</div>
+            <div class="tech-name">{{ activeJob.assignedTechnician }}</div>
+            <div class="tech-sub">{{ activeJob.technicianRole }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer Stated Complaints -->
+      <div class="apex-card">
+        <div class="card-header-compact">
+          <span class="card-tag">CUSTOMER STATED COMPLAINTS</span>
+        </div>
+        <div class="complaints-list">
+          <div class="complaint-card" *ngFor="let comp of activeJob.complaints; let i = index">
+            <div class="complaint-num">{{ i + 1 }}</div>
+            <div class="complaint-content">
+              <div class="complaint-title">{{ comp.title }}</div>
+              <div class="complaint-desc">{{ comp.description }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pre-service inspection finding -->
+        <div class="inspection-finding-box" *ngIf="activeJob.inspectionNotes">
+          <div class="finding-header">
+            <app-icon name="search" [size]="13" color="#f59e0b"></app-icon>
+            <span>PRE-SERVICE INSPECTION FINDING</span>
+          </div>
+          <div class="finding-body">
+            {{ activeJob.inspectionNotes }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER COLUMN: Labor Services & Spare Parts Breakdown -->
+    <div class="col-center">
+      <!-- Tabs Switcher -->
+      <div class="center-tabs-header">
+        <button 
+          class="tab-btn" 
+          [class.active]="activeTab === 'breakdown'"
+          (click)="activeTab = 'breakdown'"
+        >
+          <app-icon name="wrench" [size]="14"></app-icon>
+          <span>Work & Parts Breakdown</span>
+        </button>
+        <button 
+          class="tab-btn" 
+          [class.active]="activeTab === 'checklist'"
+          (click)="activeTab = 'checklist'"
+        >
+          <app-icon name="check-circle" [size]="14"></app-icon>
+          <span>Inspection Checklist ({{ completedChecklistCount }}/{{ activeJob.checklist.length }})</span>
+        </button>
+      </div>
+
+      <!-- TAB 1: Work & Parts Breakdown -->
+      <div class="tab-content" *ngIf="activeTab === 'breakdown'">
+        <!-- Approved Labor & Workshop Services -->
+        <div class="apex-card">
+          <div class="apex-card-header">
+            <div class="apex-card-title">
+              <app-icon name="wrench" [size]="16" color="#3b82f6"></app-icon>
+              <span>Approved Labor & Workshop Services</span>
+            </div>
+            <button class="btn btn-sm btn-secondary" (click)="openAddLabor()">
+              <app-icon name="plus" [size]="13"></app-icon>
+              <span>Add Labor Service</span>
+            </button>
+          </div>
+
+          <div class="apex-table-wrapper">
+            <table class="apex-table">
+              <thead>
+                <tr>
+                  <th>Service Scope</th>
+                  <th>Hours</th>
+                  <th>Rate</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let lab of activeJob.laborServices">
+                  <td>
+                    <div class="service-name-box">
+                      <strong>{{ lab.name }}</strong>
+                      <span class="service-sub" *ngIf="lab.description">{{ lab.description }}</span>
+                    </div>
+                  </td>
+                  <td class="font-mono">{{ lab.hours }} hr</td>
+                  <td class="font-mono">₹{{ lab.rate | number:'1.2-2' }}</td>
+                  <td class="font-mono"><strong>₹{{ lab.total | number:'1.2-2' }}</strong></td>
+                  <td>
+                    <span class="badge" [ngClass]="lab.status === 'Done' ? 'badge-success' : (lab.status === 'Running' ? 'badge-warning' : 'badge-neutral')">
+                      {{ lab.status }}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn-ghost" (click)="removeLabor(lab.id)" title="Remove Service">
+                      <app-icon name="trash" [size]="13" color="#ef4444"></app-icon>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Spare Parts Consumed (Inventory Linked) -->
+        <div class="apex-card">
+          <div class="apex-card-header">
+            <div class="apex-card-title">
+              <app-icon name="inventory" [size]="16" color="#10b981"></app-icon>
+              <span>Spare Parts Consumed (Inventory Linked)</span>
+            </div>
+            <button class="btn btn-sm btn-primary" (click)="openRequisitionModal()">
+              <app-icon name="plus" [size]="13"></app-icon>
+              <span>Requisition Part</span>
+            </button>
+          </div>
+
+          <div class="apex-table-wrapper">
+            <table class="apex-table">
+              <thead>
+                <tr>
+                  <th>Part Details & SKU</th>
+                  <th>Qty</th>
+                  <th>Unit Price</th>
+                  <th>Amount</th>
+                  <th>Location</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let part of activeJob.partsUsed">
+                  <td>
+                    <div class="part-cell">
+                      <strong>{{ part.name }}</strong>
+                      <span class="part-sku-sub font-mono">SKU: {{ part.sku }}</span>
+                    </div>
+                  </td>
+                  <td class="font-mono">{{ part.qty }}</td>
+                  <td class="font-mono">₹{{ part.unitPrice | number:'1.2-2' }}</td>
+                  <td class="font-mono"><strong>₹{{ part.amount | number:'1.2-2' }}</strong></td>
+                  <td>
+                    <span class="bin-tag font-mono">{{ part.location }}</span>
+                  </td>
+                  <td>
+                    <button class="btn-ghost" (click)="removePart(part.id)" title="Return to Inventory">
+                      <app-icon name="trash" [size]="13" color="#ef4444"></app-icon>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: Inspection Checklist -->
+      <div class="tab-content" *ngIf="activeTab === 'checklist'">
+        <div class="apex-card">
+          <div class="apex-card-header">
+            <div class="apex-card-title">
+              <app-icon name="check-circle" [size]="16" color="#3b82f6"></app-icon>
+              <span>Pre-Delivery Multi-Point Inspection</span>
+            </div>
+            <span class="badge badge-primary font-mono">{{ completedChecklistCount }} of {{ activeJob.checklist.length }} Completed</span>
+          </div>
+
+          <div class="checklist-items">
+            <div class="checklist-row" *ngFor="let chk of activeJob.checklist" (click)="toggleChecklist(chk.id)">
+              <div class="chk-box" [class.checked]="chk.completed">
+                <app-icon name="check" [size]="12" color="#ffffff" *ngIf="chk.completed"></app-icon>
+              </div>
+              <span class="chk-text" [class.done]="chk.completed">{{ chk.task }}</span>
+              <span class="badge badge-warning" *ngIf="chk.active && !chk.completed">Active</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Cost Ledger & Estimate & Actions -->
+    <div class="col-right">
+      <!-- Cost Ledger & Estimate Card -->
+      <div class="apex-card cost-ledger-card">
+        <div class="card-header-compact">
+          <span class="card-tag">COST LEDGER & ESTIMATE</span>
+          <span class="font-mono currency-tag">USD (₹)</span>
+        </div>
+
+        <div class="ledger-rows">
+          <div class="ledger-row">
+            <span class="ledger-lbl">Labor Charges ({{ activeJob.laborServices.length }} items)</span>
+            <span class="ledger-val font-mono">₹{{ activeJob.laborTotal | number:'1.2-2' }}</span>
+          </div>
+          <div class="ledger-row">
+            <span class="ledger-lbl">Spare Parts Requisition</span>
+            <span class="ledger-val font-mono">₹{{ activeJob.partsTotal | number:'1.2-2' }}</span>
+          </div>
+          <div class="ledger-row">
+            <span class="ledger-lbl">Shop Supplies & Eco-Disposal</span>
+            <span class="ledger-val font-mono">₹{{ activeJob.shopSupplies | number:'1.2-2' }}</span>
+          </div>
+
+          <div class="ledger-divider"></div>
+
+          <div class="ledger-row bold">
+            <span class="ledger-lbl">Gross Subtotal</span>
+            <span class="ledger-val font-mono">₹{{ activeJob.grossSubtotal | number:'1.2-2' }}</span>
+          </div>
+
+          <div class="ledger-row discount" *ngIf="activeJob.discountAmount > 0">
+            <span class="ledger-lbl">VIP Tier Discount (5%)</span>
+            <span class="ledger-val font-mono">-₹{{ activeJob.discountAmount | number:'1.2-2' }}</span>
+          </div>
+
+          <div class="ledger-row">
+            <span class="ledger-lbl">State Sales Tax / GST (10%)</span>
+            <span class="ledger-val font-mono">₹{{ activeJob.taxAmount | number:'1.2-2' }}</span>
+          </div>
+
+          <div class="ledger-divider thick"></div>
+
+          <div class="ledger-row grand-total">
+            <span class="grand-lbl">GRAND ESTIMATED TOTAL</span>
+            <span class="grand-val font-mono">₹{{ activeJob.grandTotal | number:'1.2-2' }}</span>
+          </div>
+
+          <div class="ledger-row deposit" *ngIf="activeJob.advanceDeposit > 0">
+            <span class="ledger-lbl">Advance Deposit Paid</span>
+            <span class="ledger-val font-mono">-₹{{ activeJob.advanceDeposit | number:'1.2-2' }}</span>
+          </div>
+
+          <!-- Outstanding Balance Due Highlight -->
+          <div class="balance-due-highlight">
+            <div class="bal-label">ESTIMATED BALANCE DUE</div>
+            <div class="bal-amount font-mono">₹{{ activeJob.balanceDue | number:'1.2-2' }}</div>
+          </div>
+        </div>
+
+        <!-- Quick Settlement Trigger -->
+        <button class="btn btn-primary btn-block" (click)="generateInvoice()">
+          <app-icon name="billing" [size]="16" color="#ffffff"></app-icon>
+          <span>Collect Payment & Invoice</span>
+        </button>
+      </div>
+
+      <!-- Mechanic Real-Time Checklist Box -->
+      <div class="apex-card">
+        <div class="card-header-compact">
+          <span class="card-tag">MECHANIC REAL-TIME CHECKLIST</span>
+          <span class="font-mono badge badge-neutral">{{ completedChecklistCount }}/{{ activeJob.checklist.length }} Done</span>
+        </div>
+
+        <div class="mini-checklist">
+          <div class="mini-chk-item" *ngFor="let chk of activeJob.checklist" (click)="toggleChecklist(chk.id)">
+            <input type="checkbox" [checked]="chk.completed" (change)="toggleChecklist(chk.id)" />
+            <span [class.checked-text]="chk.completed">{{ chk.task }}</span>
+          </div>
+        </div>
+
+        <div class="action-btn-group">
+          <button class="btn btn-primary btn-sm btn-block" (click)="setPipelineStep(5)">
+            <app-icon name="check-circle" [size]="14"></app-icon>
+            <span>Ready for QC & Testing</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================== -->
+<!-- VIEW B: JOB CARDS LIST VIEW (Search & Filter)  -->
+<!-- ============================================== -->
+<div class="job-list-container" *ngIf="!activeJob">
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">Operations / Service Management</div>
+      <h1 class="page-title font-display">Vehicle Intake & Job Cards</h1>
+    </div>
+    <div class="header-actions">
+      <a routerLink="/job-cards/JC-8492" class="btn btn-primary">
+        <app-icon name="wrench" [size]="14"></app-icon>
+        <span>Open Featured Job #JC-8492</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Search & Status Filter Pills -->
+  <div class="filter-bar">
+    <div class="search-box">
+      <app-icon name="search" [size]="15"></app-icon>
+      <input type="text" placeholder="Search by Job ID, Plate, Customer, Model..." [(ngModel)]="searchQuery" />
+    </div>
+
+    <div class="status-pills">
+      <button class="pill-btn" [class.active]="listFilter === 'ALL'" (click)="listFilter = 'ALL'">All Jobs</button>
+      <button class="pill-btn" [class.active]="listFilter === 'IN PROGRESS'" (click)="listFilter = 'IN PROGRESS'">In Progress</button>
+      <button class="pill-btn" [class.active]="listFilter === 'READY'" (click)="listFilter = 'READY'">Ready for Pickup</button>
+      <button class="pill-btn" [class.active]="listFilter === 'DELIVERED'" (click)="listFilter = 'DELIVERED'">Delivered</button>
+    </div>
+  </div>
+
+  <!-- Job Cards Table -->
+  <div class="apex-table-wrapper">
+    <table class="apex-table">
+      <thead>
+        <tr>
+          <th>Job Card #</th>
+          <th>Vehicle & Reg Plate</th>
+          <th>Customer</th>
+          <th>Bay</th>
+          <th>Lead Technician</th>
+          <th>Lifecycle Status</th>
+          <th>Grand Total</th>
+          <th>Balance Due</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let j of filteredJobCards">
+          <td>
+            <a [routerLink]="['/job-cards', j.id]" class="job-id-pill font-mono">#{{ j.id }}</a>
+          </td>
+          <td>
+            <div class="vehicle-cell">
+              <strong>{{ j.vehicle.year }} {{ j.vehicle.make }} {{ j.vehicle.model }}</strong>
+              <span class="plate-badge font-mono">{{ j.vehicle.regPlate }}</span>
+            </div>
+          </td>
+          <td>
+            <div class="customer-cell">
+              <span>{{ j.customer.name }}</span>
+              <span class="cust-phone">{{ j.customer.phone }}</span>
+            </div>
+          </td>
+          <td>
+            <span class="bay-pill font-mono">{{ j.vehicle.bayNumber || 'Bay #1' }}</span>
+          </td>
+          <td>{{ j.assignedTechnician }}</td>
+          <td>
+            <span class="badge" [ngClass]="{
+              'badge-primary': j.status === 'In Progress' || j.status === 'Inspection',
+              'badge-success': j.status === 'Ready' || j.status === 'Delivered',
+              'badge-warning': j.status === 'Intake' || j.status === 'Estimate',
+              'badge-purple': j.status === 'QC & Testing' || j.status === 'Final Billing'
+            }">
+              {{ j.status }}
+            </span>
+          </td>
+          <td class="font-mono">₹{{ j.grandTotal | number:'1.2-2' }}</td>
+          <td class="font-mono" [class.text-danger]="j.balanceDue > 0">
+            <strong>₹{{ j.balanceDue | number:'1.2-2' }}</strong>
+          </td>
+          <td>
+            <a [routerLink]="['/job-cards', j.id]" class="btn btn-sm btn-primary">Open</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================== -->
+<!-- MODAL 1: ADD LABOR SERVICE                     -->
+<!-- ============================================== -->
+<div class="modal-backdrop" *ngIf="showAddLaborModal" (click)="showAddLaborModal = false">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title font-display">Add Labor & Workshop Service</h3>
+      <button class="btn-ghost" (click)="showAddLaborModal = false">
+        <app-icon name="close" [size]="18"></app-icon>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Service Name / Scope *</label>
+        <input type="text" [(ngModel)]="newLaborName" placeholder="e.g. Brake Fluid Flush & Bleed" />
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label>Hours Required</label>
+          <input type="number" step="0.5" [(ngModel)]="newLaborHours" />
+        </div>
+        <div class="form-group">
+          <label>Hourly Rate (₹)</label>
+          <input type="number" [(ngModel)]="newLaborRate" />
+        </div>
+      </div>
+      <div class="calculated-preview font-mono">
+        Estimated Charge: <strong>₹{{ (newLaborHours * newLaborRate) | number:'1.2-2' }}</strong>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="showAddLaborModal = false">Cancel</button>
+      <button class="btn btn-primary" [disabled]="!newLaborName.trim()" (click)="submitAddLabor()">
+        Add to Job Card
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================== -->
+<!-- MODAL 2: REQUISITION PART FROM INVENTORY       -->
+<!-- ============================================== -->
+<div class="modal-backdrop" *ngIf="showRequisitionModal" (click)="showRequisitionModal = false">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title font-display">Requisition Spare Part (Inventory Linked)</h3>
+      <button class="btn-ghost" (click)="showRequisitionModal = false">
+        <app-icon name="close" [size]="18"></app-icon>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Select Inventory Item *</label>
+        <select [(ngModel)]="selectedPartSku">
+          <option *ngFor="let part of garageService.inventory()" [value]="part.sku">
+            {{ part.name }} (Stock: {{ part.currentStock }} {{ part.unit }}) — ₹{{ part.unitPrice | number:'1.2-2' }}
+          </option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Quantity to Requisition</label>
+        <input type="number" min="1" [(ngModel)]="requisitionQty" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="showRequisitionModal = false">Cancel</button>
+      <button class="btn btn-primary" (click)="submitRequisition()">
+        Requisition & Deduct Stock
+      </button>
+    </div>
+  </div>
+</div>

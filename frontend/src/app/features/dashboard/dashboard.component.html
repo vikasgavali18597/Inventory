@@ -1,0 +1,183 @@
+<div class="dashboard-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">Operations / Workshop Command Center</div>
+      <h1 class="page-title font-display">Workshop Operations Dashboard</h1>
+    </div>
+    <div class="header-actions">
+      <a routerLink="/job-cards/JC-8492" class="btn btn-secondary">
+        <app-icon name="wrench" [size]="14"></app-icon>
+        <span>Open Featured Job #JC-8492</span>
+      </a>
+      <a routerLink="/job-cards" class="btn btn-primary">
+        <app-icon name="plus" [size]="14"></app-icon>
+        <span>View All Job Cards</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- KPI Metric Cards Grid -->
+  <div class="kpi-grid">
+    <!-- Active Jobs -->
+    <div class="kpi-card">
+      <div class="kpi-icon-box primary">
+        <app-icon name="wrench" [size]="20" color="#3b82f6"></app-icon>
+      </div>
+      <div class="kpi-details">
+        <div class="kpi-label">Active Job Cards</div>
+        <div class="kpi-value font-mono">{{ garageService.activeJobsCount() }}</div>
+        <div class="kpi-subtext positive">In-Bay & Diagnostics</div>
+      </div>
+    </div>
+
+    <!-- Gross Invoiced -->
+    <div class="kpi-card">
+      <div class="kpi-icon-box success">
+        <app-icon name="billing" [size]="20" color="#10b981"></app-icon>
+      </div>
+      <div class="kpi-details">
+        <div class="kpi-label">Gross Invoiced Today</div>
+        <div class="kpi-value font-mono">₹{{ garageService.grossInvoicedToday() | number:'1.2-2' }}</div>
+        <div class="kpi-subtext positive">+18.4% vs last Friday</div>
+      </div>
+    </div>
+
+    <!-- Low Stock Alert -->
+    <div class="kpi-card">
+      <div class="kpi-icon-box danger">
+        <app-icon name="alert" [size]="20" color="#ef4444"></app-icon>
+      </div>
+      <div class="kpi-details">
+        <div class="kpi-label">Critical Stock Alerts</div>
+        <div class="kpi-value font-mono">{{ garageService.lowStockCount() }} Parts</div>
+        <div class="kpi-subtext alert">Below Safety Margin</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content 2-Column Grid -->
+  <div class="dashboard-content-grid">
+    <!-- Active Job Cards Section -->
+    <div class="apex-card left-col">
+      <div class="apex-card-header">
+        <div class="apex-card-title">
+          <app-icon name="car" [size]="16" color="#3b82f6"></app-icon>
+          <span>Active Vehicles In Service</span>
+        </div>
+        <a routerLink="/job-cards" class="btn btn-sm btn-secondary">Manage All</a>
+      </div>
+
+      <div class="apex-table-wrapper">
+        <table class="apex-table">
+          <thead>
+            <tr>
+              <th>Job ID</th>
+              <th>Vehicle & Plate</th>
+              <th>Customer</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let job of garageService.jobCards()">
+              <td>
+                <span class="job-id-pill font-mono">#{{ job.id }}</span>
+              </td>
+              <td>
+                <div class="vehicle-cell">
+                  <span class="vehicle-name">{{ job.vehicle.year }} {{ job.vehicle.make }} {{ job.vehicle.model }}</span>
+                  <span class="plate-badge font-mono">{{ job.vehicle.regPlate }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="customer-cell">
+                  <span class="cust-name">{{ job.customer.name }}</span>
+                  <span class="cust-phone">{{ job.customer.phone }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'badge-primary': job.status === 'In Progress' || job.status === 'Inspection',
+                  'badge-success': job.status === 'Ready' || job.status === 'Delivered',
+                  'badge-warning': job.status === 'Intake' || job.status === 'Estimate',
+                  'badge-purple': job.status === 'QC & Testing' || job.status === 'Final Billing'
+                }">
+                  {{ job.status }}
+                </span>
+              </td>
+              <td>
+                <a [routerLink]="['/job-cards', job.id]" class="btn btn-sm btn-primary">
+                  Open
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Right Side: Live Bay Tracker & Quick Actions -->
+    <div class="right-col-cards">
+      <!-- Live Bay Pulse -->
+      <div class="apex-card">
+        <div class="apex-card-header">
+          <div class="apex-card-title">
+            <app-icon name="wrench" [size]="16" color="#06b6d4"></app-icon>
+            <span>Workshop Bay Status (7/8 Active)</span>
+          </div>
+          <a routerLink="/bays" class="btn btn-sm btn-ghost">Full Grid</a>
+        </div>
+
+        <div class="bays-mini-list">
+          <div class="bay-mini-item" *ngFor="let bay of garageService.bays().slice(0, 5)">
+            <div class="bay-mini-header">
+              <div class="bay-title">
+                <span class="bay-num font-mono">Bay #{{ bay.bayNumber }}</span>
+                <span class="bay-car">{{ bay.vehicleModel }}</span>
+              </div>
+              <span class="badge" [ngClass]="bay.status === 'Occupied' ? 'badge-primary' : (bay.status === 'QC Inspection' ? 'badge-warning' : 'badge-neutral')">
+                {{ bay.status }}
+              </span>
+            </div>
+            <div class="bay-progress-wrap">
+              <div class="bay-progress-bar" [style.width.%]="bay.progressPercent"></div>
+            </div>
+            <div class="bay-footer">
+              <span class="bay-tech">{{ bay.technician }}</span>
+              <span class="bay-percent font-mono">{{ bay.progressPercent }}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Operations Launcher -->
+      <div class="apex-card quick-ops-card">
+        <div class="apex-card-header border-none">
+          <div class="apex-card-title">
+            <app-icon name="dashboard" [size]="16" color="#3b82f6"></app-icon>
+            <span>Quick Operations</span>
+          </div>
+        </div>
+        <div class="quick-pills">
+          <a routerLink="/billing" class="quick-pill">
+            <app-icon name="billing" [size]="14" color="#10b981"></app-icon>
+            <span>Payments</span>
+          </a>
+          <a routerLink="/inventory" class="quick-pill">
+            <app-icon name="inventory" [size]="14" color="#f59e0b"></app-icon>
+            <span>Stock Check</span>
+          </a>
+          <a routerLink="/suppliers-grn" class="quick-pill">
+            <app-icon name="truck" [size]="14" color="#3b82f6"></app-icon>
+            <span>Receive PO</span>
+          </a>
+          <a routerLink="/delivery" class="quick-pill">
+            <app-icon name="delivery" [size]="14" color="#8b5cf6"></app-icon>
+            <span>Gatepass</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,440 @@
+<!-- Toast Notification -->
+<div class="toast-container" *ngIf="showToast">
+  <div class="toast toast-success">
+    <app-icon name="check-circle" [size]="18" color="#10b981"></app-icon>
+    <span>{{ toastMessage }}</span>
+  </div>
+</div>
+
+<div class="grn-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">Operations / Inventory Management / Suppliers & Stock In</div>
+      <h1 class="page-title font-display">Inbound Goods Receipt & PO Matching</h1>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary">
+        <app-icon name="printer" [size]="14"></app-icon>
+        <span>Export Purchase Ledger</span>
+      </button>
+      <button class="btn btn-primary" (click)="showNewGrnModal = true">
+        <app-icon name="plus" [size]="14" color="#ffffff"></app-icon>
+        <span>+ New Purchase Entry / GRN</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI Cards Grid -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-icon-box primary">
+        <app-icon name="billing" [size]="20" color="#3b82f6"></app-icon>
+      </div>
+      <div class="kpi-details">
+        <div class="kpi-label">Month-to-Date Purchases</div>
+        <div class="kpi-value font-mono">₹38,420.00</div>
+        <div class="kpi-subtext positive">+12.4% vs last mo</div>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon-box success">
+        <app-icon name="inventory" [size]="20" color="#10b981"></app-icon>
+      </div>
+      <div class="kpi-details">
+        <div class="kpi-label">Stock In Today (GRN)</div>
+        <div class="kpi-value font-mono">142 Units</div>
+        <div class="kpi-subtext positive">₹4,840 booked value</div>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon-box warning">
+        <app-icon name="expense" [size]="20" color="#f59e0b"></app-icon>
+      </div>
+      <div class="kpi-details">
+        <div class="kpi-label">Outstanding Payables</div>
+        <div class="kpi-value font-mono">₹11,240.00</div>
+        <div class="kpi-subtext alert">7 Open Invoices</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="grn-tabs">
+    <button class="pill-btn" [class.active]="activeTab === 'grn'" (click)="activeTab = 'grn'">
+      Purchase Entries & GRN Log
+    </button>
+    <button class="pill-btn" [class.active]="activeTab === 'suppliers'" (click)="activeTab = 'suppliers'">
+      Authorized Suppliers & Balances
+    </button>
+  </div>
+
+  <!-- TAB 1: GRN Log & Matching (Matching Screenshot 3) -->
+  <div class="grn-layout-grid" *ngIf="activeTab === 'grn'">
+    <!-- Left Column: Active Goods Receipt Note Details -->
+    <div class="left-grn-col" *ngIf="currentGrn">
+      <div class="apex-card grn-card">
+        <div class="grn-banner">
+          <div class="grn-title-row">
+            <div class="grn-badge-box">
+              <app-icon name="truck" [size]="20" color="#3b82f6"></app-icon>
+              <div>
+                <h2 class="grn-num font-mono">Goods Receipt Note: {{ currentGrn.grnNumber }}</h2>
+                <div class="grn-sub">Live Stock Intake & Visual Physical Inspection Ledger</div>
+              </div>
+            </div>
+            <span class="badge" [ngClass]="currentGrn.status === 'Committed' ? 'badge-success' : 'badge-warning'">
+              {{ currentGrn.status }}
+            </span>
+          </div>
+
+          <!-- GRN Header Meta Grid -->
+          <div class="grn-meta-grid">
+            <div class="grn-meta-item">
+              <span class="meta-label">Approved Supplier</span>
+              <strong class="meta-val">{{ currentGrn.supplierName }}</strong>
+              <span class="meta-code font-mono">{{ currentGrn.supplierCode }}</span>
+            </div>
+
+            <div class="grn-meta-item">
+              <span class="meta-label">Invoice & PO References</span>
+              <strong class="meta-val font-mono">{{ currentGrn.invoiceRef }}</strong>
+              <span class="meta-code font-mono">PO: {{ currentGrn.poRef }}</span>
+            </div>
+
+            <div class="grn-meta-item">
+              <span class="meta-label">Receiving Location</span>
+              <strong class="meta-val">{{ currentGrn.receivingLocation }}</strong>
+            </div>
+
+            <div class="grn-meta-item">
+              <span class="meta-label">Quality Inspector</span>
+              <strong class="meta-val text-success">{{ currentGrn.qualityInspector }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- GRN Items Table -->
+        <div class="apex-table-wrapper grn-table-wrap">
+          <table class="apex-table">
+            <thead>
+              <tr>
+                <th>Item SKU & Description</th>
+                <th>Ordered</th>
+                <th>Shipped</th>
+                <th>Accepted</th>
+                <th>Unit Price</th>
+                <th>Line Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of currentGrn.items">
+                <td>
+                  <div class="item-cell">
+                    <strong>{{ item.name }}</strong>
+                    <span class="font-mono item-sku">SKU: {{ item.sku }}</span>
+                  </div>
+                </td>
+                <td class="font-mono">{{ item.orderedQty }}</td>
+                <td class="font-mono">{{ item.shippedQty }}</td>
+                <td>
+                  <span class="badge badge-success font-mono">{{ item.acceptedQty }} Sets</span>
+                </td>
+                <td class="font-mono">₹{{ item.unitCost | number:'1.2-2' }}</td>
+                <td class="font-mono"><strong>₹{{ item.total | number:'1.2-2' }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- GRN Totals & Commit Action Bar -->
+        <div class="grn-bottom-bar">
+          <div class="grn-summary-pills font-mono">
+            <div class="sum-pill">
+              <span>Accepted Qty:</span>
+              <strong>{{ currentGrn.acceptedTotalQty }} Units</strong>
+            </div>
+            <div class="sum-pill">
+              <span>Subtotal:</span>
+              <strong>₹{{ currentGrn.subtotal | number:'1.2-2' }}</strong>
+            </div>
+            <div class="sum-pill">
+              <span>Tax / GST:</span>
+              <strong>₹{{ currentGrn.taxAmount | number:'1.2-2' }}</strong>
+            </div>
+            <div class="sum-pill total">
+              <span>Total Invoice Amount:</span>
+              <strong>₹{{ currentGrn.totalInvoiceAmount | number:'1.2-2' }}</strong>
+            </div>
+          </div>
+
+          <div class="grn-actions">
+            <button 
+              class="btn btn-success btn-lg" 
+              [disabled]="currentGrn.status === 'Committed'"
+              (click)="commitGRN(currentGrn.grnNumber)"
+            >
+              <app-icon name="check-circle" [size]="16" color="#ffffff"></app-icon>
+              <span>{{ currentGrn.status === 'Committed' ? 'Stock Already Committed' : 'Approve & Commit Stock to Inventory' }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Purchase Receipts Log Table -->
+      <div class="apex-card recent-grn-card">
+        <div class="apex-card-header">
+          <div class="apex-card-title">
+            <app-icon name="truck" [size]="16" color="#3b82f6"></app-icon>
+            <span>Recent Purchase Receipts & Inbound Log</span>
+          </div>
+        </div>
+
+        <div class="apex-table-wrapper">
+          <table class="apex-table">
+            <thead>
+              <tr>
+                <th>GRN Number</th>
+                <th>Date & Time</th>
+                <th>Supplier</th>
+                <th>Invoice Total</th>
+                <th>Status</th>
+                <th>Inspector</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let g of garageService.grnList()">
+                <td>
+                  <span class="font-mono font-bold">{{ g.grnNumber }}</span>
+                </td>
+                <td>{{ g.date }}</td>
+                <td>
+                  <strong>{{ g.supplierName }}</strong>
+                </td>
+                <td class="font-mono">₹{{ g.totalInvoiceAmount | number:'1.2-2' }}</td>
+                <td>
+                  <span class="badge" [ngClass]="g.status === 'Committed' ? 'badge-success' : 'badge-warning'">
+                    {{ g.status }}
+                  </span>
+                </td>
+                <td>{{ g.qualityInspector }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: 3-Way Match & Supplier Balances -->
+    <div class="right-grn-col">
+      <!-- 3-Way Match Card -->
+      <div class="apex-card">
+        <div class="card-header-compact">
+          <span class="card-tag">AUTOMATED 3-WAY MATCH</span>
+          <span class="badge badge-success">100% Verified</span>
+        </div>
+
+        <div class="match-list font-mono">
+          <div class="match-item">
+            <app-icon name="check-circle" [size]="15" color="#10b981"></app-icon>
+            <div class="match-content">
+              <span>Purchase Order: PO-2024-0981</span>
+              <strong>₹2,107.64</strong>
+            </div>
+          </div>
+
+          <div class="match-item">
+            <app-icon name="check-circle" [size]="15" color="#10b981"></app-icon>
+            <div class="match-content">
+              <span>Physical GRN: GRN-2024-0418</span>
+              <strong>37 Items Accepted</strong>
+            </div>
+          </div>
+
+          <div class="match-item">
+            <app-icon name="check-circle" [size]="15" color="#10b981"></app-icon>
+            <div class="match-content">
+              <span>Supplier Inv: INV-BRM-884920</span>
+              <strong>₹2,107.64 (Match)</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="status-box-green">
+          <app-icon name="check" [size]="13" color="#10b981"></app-icon>
+          <span>Ready for Accounts Payable Auto-Post</span>
+        </div>
+      </div>
+
+      <!-- Suppliers & Balances (From Screenshot 3) -->
+      <div class="apex-card">
+        <div class="card-header-compact">
+          <span class="card-tag">SUPPLIERS & BALANCES</span>
+          <span class="badge badge-neutral">14 Approved</span>
+        </div>
+
+        <div class="suppliers-mini-list">
+          <div class="supplier-row">
+            <div>
+              <strong>Brembo S.p.A.</strong>
+              <div class="sub">Primary Braking Systems</div>
+            </div>
+            <div class="amount-side font-mono">
+              <div class="bal-num text-danger">₹2,187.64</div>
+              <div class="bal-sub">Balance Due</div>
+            </div>
+          </div>
+
+          <div class="supplier-row">
+            <div>
+              <strong>Motul Lubricants</strong>
+              <div class="sub">High Performance Engine Oils</div>
+            </div>
+            <div class="amount-side font-mono">
+              <div class="bal-num text-warning">₹1,540.00</div>
+              <div class="bal-sub">Balance Due</div>
+            </div>
+          </div>
+
+          <div class="supplier-row">
+            <div>
+              <strong>Mann+Hummel</strong>
+              <div class="sub">OE Filtration Systems</div>
+            </div>
+            <div class="amount-side font-mono">
+              <div class="bal-num text-success">₹0.00</div>
+              <div class="bal-sub">Settled</div>
+            </div>
+          </div>
+
+          <div class="supplier-row">
+            <div>
+              <strong>Bosch Automotive</strong>
+              <div class="sub">Electronics & Sensors</div>
+            </div>
+            <div class="amount-side font-mono">
+              <div class="bal-num text-danger">₹7,592.36</div>
+              <div class="bal-sub">3 Open Orders</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Authorized Suppliers Directory -->
+  <div class="suppliers-directory" *ngIf="activeTab === 'suppliers'">
+    <div class="apex-card">
+      <div class="apex-card-header">
+        <div class="apex-card-title">Authorized Supplier Master Directory</div>
+      </div>
+      <div class="apex-table-wrapper">
+        <table class="apex-table">
+          <thead>
+            <tr>
+              <th>Supplier Name</th>
+              <th>Category</th>
+              <th>Payment Terms</th>
+              <th>Lead Time</th>
+              <th>Open Balance</th>
+              <th>EDI Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Brembo S.p.A.</strong></td>
+              <td>Braking Systems</td>
+              <td>Net 30</td>
+              <td>2 Days</td>
+              <td class="font-mono text-danger">₹2,187.64</td>
+              <td><span class="badge badge-success">EDI Connected</span></td>
+            </tr>
+            <tr>
+              <td><strong>Motul Lubricants Dist.</strong></td>
+              <td>Engine & Transmission Oils</td>
+              <td>Net 30</td>
+              <td>1 Day</td>
+              <td class="font-mono text-warning">₹1,540.00</td>
+              <td><span class="badge badge-success">EDI Connected</span></td>
+            </tr>
+            <tr>
+              <td><strong>Mann+Hummel Filtration</strong></td>
+              <td>Filters & Air Intake</td>
+              <td>Net 45</td>
+              <td>2 Days</td>
+              <td class="font-mono text-success">₹0.00</td>
+              <td><span class="badge badge-success">EDI Connected</span></td>
+            </tr>
+            <tr>
+              <td><strong>Bosch Automotive Systems</strong></td>
+              <td>Batteries & Spark Plugs</td>
+              <td>Net 45</td>
+              <td>3 Days</td>
+              <td class="font-mono text-danger">₹7,592.36</td>
+              <td><span class="badge badge-success">EDI Connected</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: New GRN / Purchase Entry -->
+<div class="modal-backdrop" *ngIf="showNewGrnModal" (click)="showNewGrnModal = false">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title font-display">+ New Goods Receipt Note (GRN)</h3>
+      <button class="btn-ghost" (click)="showNewGrnModal = false">
+        <app-icon name="close" [size]="18"></app-icon>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label>Supplier Name *</label>
+          <select [(ngModel)]="newSupplierName">
+            <option value="Brembo S.p.A.">Brembo S.p.A.</option>
+            <option value="Motul Lubricants Dist.">Motul Lubricants Dist.</option>
+            <option value="Mann+Hummel Filtration">Mann+Hummel Filtration</option>
+            <option value="Bosch Automotive Systems">Bosch Automotive Systems</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>PO Reference #</label>
+          <input type="text" [(ngModel)]="newPoRef" class="font-mono" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Supplier Invoice Reference</label>
+        <input type="text" [(ngModel)]="newInvRef" class="font-mono" />
+      </div>
+      <div class="form-group">
+        <label>Select Inbound Part</label>
+        <select [(ngModel)]="newPartSku">
+          <option *ngFor="let part of garageService.inventory()" [value]="part.sku">
+            {{ part.name }} ({{ part.sku }})
+          </option>
+        </select>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label>Quantity Received</label>
+          <input type="number" min="1" [(ngModel)]="newPartQty" />
+        </div>
+        <div class="form-group">
+          <label>Unit Cost (₹)</label>
+          <input type="number" step="0.5" [(ngModel)]="newUnitCost" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="showNewGrnModal = false">Cancel</button>
+      <button class="btn btn-primary" (click)="submitNewGRN()">
+        Create Inbound GRN
+      </button>
+    </div>
+  </div>
+</div>
